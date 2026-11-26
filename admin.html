@@ -49,7 +49,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
         <h1>لوحة تحكم VÉRANDA</h1>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-success btn-sm" onclick="seedDatabase()">📥 تعبئة بيانات المنيو الافتراضية</button>
+          <button id="seedBtn" class="btn btn-success btn-sm" onclick="seedDatabase()">📥 تعبئة بيانات المنيو الافتراضية</button>
           <button class="btn btn-danger btn-sm" onclick="logout()">خروج</button>
         </div>
       </div>
@@ -128,7 +128,7 @@
   <script type="module">
     import { db, auth } from './firebase-config.js';
     import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { initialSettings, initialCategories, initialItems } from './seed-data.js';
 
     let categories = [];
@@ -325,7 +325,14 @@
     };
 
     window.seedDatabase = async () => {
+      const existingCats = await getDocs(collection(db, "categories"));
+      const existingItems = await getDocs(collection(db, "items"));
+      if (!existingCats.empty || !existingItems.empty) {
+        return alert("البيانات متعبية بالفعل في قاعدة البيانات! لو عايزة تعيدي تعبئتها من الأول احذفي القديمة من Firestore الأول.");
+      }
       if (!confirm("سيتم رفع كل أصناف وأقسام المنيو الافتراضية لقاعدة البيانات، متابعة؟")) return;
+      const btn = document.getElementById('seedBtn');
+      btn.disabled = true;
       await setDoc(doc(db, "settings", "general"), initialSettings);
       for (const c of initialCategories) {
         await addDoc(collection(db, "categories"), c);
