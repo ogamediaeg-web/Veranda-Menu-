@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة التحكم | VÉRANDA Café</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #180d07; --card: #27160c; --gold: #e6c68a; --text: #f8f1e5; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); padding: 15px; }
+    .container { max-width: 950px; margin: 0 auto; }
+    .card { background: var(--card); border: 1px solid rgba(230,198,138,0.25); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+    h1, h2, h3 { color: var(--gold); margin-bottom: 12px; }
+    input, select {
+      width: 100%; padding: 10px 12px; margin-bottom: 10px; border-radius: 10px;
+      border: 1px solid rgba(230,198,138,0.35); background: rgba(255,255,255,0.07);
+      color: #fff; font-family: 'Cairo', sans-serif;
+    }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+    .btn {
+      padding: 10px 18px; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif;
+      font-weight: 700; cursor: pointer; background: var(--gold); color: #24130a;
+    }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+    .tab-btn { background: rgba(230,198,138,0.15); color: var(--gold); border: 1px solid var(--gold); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-family: 'Cairo', sans-serif; font-weight: 700; }
+    .tab-btn.active { background: var(--gold); color: #24130a; }
+    .row-item {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 10px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .inline-input { width: auto; margin-bottom: 0; padding: 6px 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loginBox" class="card" style="max-width:420px; margin: 60px auto;">
+      <h2 style="text-align:center;">تسجيل دخول الإدارة</h2>
+      <input type="email" id="emailInput" placeholder="البريد الإلكتروني" value="admin@Fernanda.com">
+      <input type="password" id="passInput" placeholder="كلمة المرور">
+      <button class="btn" style="width:100%;" onclick="login()">دخول للداش بورد</button>
+      <p id="loginErr" style="color:#f87171; margin-top:10px; text-align:center;"></p>
+    </div>
+
+    <div id="dashboard" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+        <h1>لوحة تحكم VÉRANDA</h1>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-success btn-sm" onclick="seedDatabase()">📥 تعبئة بيانات المنيو الافتراضية</button>
+          <button class="btn btn-danger btn-sm" onclick="logout()">خروج</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('itemsTab', this)">إدارة الأصناف والأسعار</button>
+        <button class="tab-btn" onclick="showTab('catsTab', this)">إدارة الأقسام</button>
+        <button class="tab-btn" onclick="showTab('settingsTab', this)">إعدادات الكافيه والواتساب</button>
+      </div>
+
+      <div id="itemsTab" class="tab-content">
+        <div class="card">
+          <h3>➕ إضافة صنف جديد</h3>
+          <div class="grid-2">
+            <select id="newItemCat"></select>
+            <input type="number" id="newItemPrice" placeholder="السعر (ج.م)">
+            <input type="text" id="newItemAr" placeholder="الاسم بالعربي">
+            <input type="text" id="newItemEn" placeholder="الاسم بالإنجليزي">
+            <input type="text" id="newItemFr" placeholder="الاسم بالفرنساوي">
+          </div>
+          <button class="btn" onclick="addItem()">إضافة الصنف</button>
+        </div>
+
+        <div class="card">
+          <h3>قائمة الأصناف الحالية</h3>
+          <div class="grid-2" style="margin-bottom:12px;">
+            <select id="filterCat" onchange="renderAdminItems()">
+              <option value="all">كل الأقسام</option>
+            </select>
+            <input type="text" id="adminSearch" placeholder="بحث باسم الصنف..." oninput="renderAdminItems()">
+          </div>
+          <div id="adminItemsList"></div>
+        </div>
+      </div>
+
+      <div id="catsTab" class="tab-content" style="display:none;">
+        <div class="card">
+          <h3>➕ إضافة قسم جديد</h3>
+          <div class="grid-2">
+            <input type="text" id="newCatAr" placeholder="اسم القسم بالعربي">
+            <input type="text" id="newCatEn" placeholder="اسم القسم بالإنجليزي">
+            <input type="text" id="newCatFr" placeholder="اسم القسم بالفرنساوي">
+            <input type="number" id="newCatOrder" placeholder="الترتيب (مثلاً 16)">
+          </div>
+          <button class="btn" onclick="addCategory()">إضافة القسم</button>
+        </div>
+        <div class="card">
+          <h3>الأقسام الحالية (تعديل أو حذف)</h3>
+          <div id="adminCatsList"></div>
+        </div>
+      </div>
+
+      <div id="settingsTab" class="tab-content" style="display:none;">
+        <div class="card">
+          <h3>بيانات المكان ورقم واتساب الطلبات</h3>
+          <label>اسم الكافيه (عربي)</label>
+          <input type="text" id="setCafeAr">
+          <label>اسم الكافيه (إنجليزي)</label>
+          <input type="text" id="setCafeEn">
+          <label>اسم الكافيه (فرنساوي)</label>
+          <input type="text" id="setCafeFr">
+          <label>العنوان (عربي)</label>
+          <input type="text" id="setAddrAr">
+          <label>العنوان (إنجليزي)</label>
+          <input type="text" id="setAddrEn">
+          <label>العنوان (فرنساوي)</label>
+          <input type="text" id="setAddrFr">
+          <label>رقم الواتساب لاستقبال الطلبات (مثال: 01124349186)</label>
+          <input type="text" id="setWa">
+          <button class="btn" onclick="saveSettings()">حفظ التعديلات</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db, auth } from './firebase-config.js';
+    import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { initialSettings, initialCategories, initialItems } from './seed-data.js';
+
+    let categories = [];
+    let items = [];
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        initListeners();
+      } else {
+        document.getElementById('loginBox').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
+      }
+    });
+
+    window.login = async () => {
+      const email = document.getElementById('emailInput').value.trim();
+      const pass = document.getElementById('passInput').value.trim();
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        document.getElementById('loginErr').innerText = "خطأ في الإيميل أو الباسورد، تأكدي من إضافته في Authentication";
+      }
+    };
+
+    window.logout = () => signOut(auth);
+
+    window.showTab = (tabId, btn) => {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).style.display = 'block';
+      btn.classList.add('active');
+    };
+
+    function initListeners() {
+      onSnapshot(doc(db, "settings", "general"), (snap) => {
+        if (snap.exists()) {
+          const s = snap.data();
+          document.getElementById('setCafeAr').value = s.cafeNameAr || '';
+          document.getElementById('setCafeEn').value = s.cafeNameEn || '';
+          document.getElementById('setCafeFr').value = s.cafeNameFr || '';
+          document.getElementById('setAddrAr').value = s.addressAr || '';
+          document.getElementById('setAddrEn').value = s.addressEn || '';
+          document.getElementById('setAddrFr').value = s.addressFr || '';
+          document.getElementById('setWa').value = s.whatsapp || '';
+        }
+      });
+
+      onSnapshot(query(collection(db, "categories"), orderBy("order")), (snap) => {
+        categories = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+        renderCategoriesSelects();
+        renderAdminCats();
+        renderAdminItems();
+      });
+
+      onSnapshot(collection(db, "items"), (snap) => {
+        items = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+        renderAdminItems();
+      });
+    }
+
+    function renderCategoriesSelects() {
+      const newSelect = document.getElementById('newItemCat');
+      const filterSelect = document.getElementById('filterCat');
+      let opts = '';
+      categories.forEach(c => { opts += `<option value="${c.id}">${c.ar}</option>`; });
+      newSelect.innerHTML = opts;
+      filterSelect.innerHTML = `<option value="all">كل الأقسام</option>` + opts;
+    }
+
+    function renderAdminCats() {
+      const list = document.getElementById('adminCatsList');
+      list.innerHTML = categories.map(c => `
+        <div class="row-item">
+          <div style="display:flex; gap:6px; flex-wrap:wrap; flex:1;">
+            <input class="inline-input" id="catAr_${c.docId}" value="${c.ar}" placeholder="عربي">
+            <input class="inline-input" id="catEn_${c.docId}" value="${c.en}" placeholder="إنجليزي">
+            <input class="inline-input" id="catFr_${c.docId}" value="${c.fr}" placeholder="فرنساوي">
+            <input class="inline-input" style="width:70px;" type="number" id="catOrd_${c.docId}" value="${c.order}">
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-sm" onclick="updateCat('${c.docId}')">حفظ</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.docId}')">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.addCategory = async () => {
+      const ar = document.getElementById('newCatAr').value.trim();
+      const en = document.getElementById('newCatEn').value.trim() || ar;
+      const fr = document.getElementById('newCatFr').value.trim() || en;
+      const order = Number(document.getElementById('newCatOrder').value) || categories.length + 1;
+      if (!ar) return alert("اكتب اسم القسم بالعربي");
+      const id = "cat_" + Date.now();
+      await addDoc(collection(db, "categories"), { id, ar, en, fr, order });
+      document.getElementById('newCatAr').value = '';
+      document.getElementById('newCatEn').value = '';
+      document.getElementById('newCatFr').value = '';
+    };
+
+    window.updateCat = async (docId) => {
+      await updateDoc(doc(db, "categories", docId), {
+        ar: document.getElementById(`catAr_${docId}`).value,
+        en: document.getElementById(`catEn_${docId}`).value,
+        fr: document.getElementById(`catFr_${docId}`).value,
+        order: Number(document.getElementById(`catOrd_${docId}`).value)
+      });
+      alert("تم تحديث القسم");
+    };
+
+    window.deleteCat = async (docId) => {
+      if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
+        await deleteDoc(doc(db, "categories", docId));
+      }
+    };
+
+    window.renderAdminItems = () => {
+      const fCat = document.getElementById('filterCat').value;
+      const search = document.getElementById('adminSearch').value.toLowerCase();
+      const list = document.getElementById('adminItemsList');
+
+      const filtered = items.filter(it => {
+        if (fCat !== 'all' && it.cat !== fCat) return false;
+        if (search && !it.ar.toLowerCase().includes(search) && !it.en.toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      list.innerHTML = filtered.map(it => `
+        <div class="row-item">
+          <div style="display:flex; gap:6px; flex-wrap:wrap; flex:1;">
+            <input class="inline-input" id="itAr_${it.docId}" value="${it.ar}" placeholder="عربي">
+            <input class="inline-input" id="itEn_${it.docId}" value="${it.en}" placeholder="إنجليزي">
+            <input class="inline-input" id="itFr_${it.docId}" value="${it.fr}" placeholder="فرنساوي">
+            <input class="inline-input" style="width:90px;" type="number" id="itPr_${it.docId}" value="${it.price}">
+          </div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <label style="font-size:13px; cursor:pointer;">
+              <input type="checkbox" style="width:auto;" ${it.available !== false ? 'checked' : ''} onchange="toggleAvail('${it.docId}', this.checked)"> متاح
+            </label>
+            <button class="btn btn-sm" onclick="updateItem('${it.docId}')">حفظ</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteItem('${it.docId}')">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    };
+
+    window.addItem = async () => {
+      const cat = document.getElementById('newItemCat').value;
+      const price = Number(document.getElementById('newItemPrice').value);
+      const ar = document.getElementById('newItemAr').value.trim();
+      const en = document.getElementById('newItemEn').value.trim() || ar;
+      const fr = document.getElementById('newItemFr').value.trim() || en;
+      if (!ar || !price) return alert("اكتب اسم الصنف والسعر");
+      await addDoc(collection(db, "items"), { cat, price, ar, en, fr, available: true });
+      document.getElementById('newItemAr').value = '';
+      document.getElementById('newItemEn').value = '';
+      document.getElementById('newItemFr').value = '';
+      document.getElementById('newItemPrice').value = '';
+    };
+
+    window.updateItem = async (docId) => {
+      await updateDoc(doc(db, "items", docId), {
+        ar: document.getElementById(`itAr_${docId}`).value,
+        en: document.getElementById(`itEn_${docId}`).value,
+        fr: document.getElementById(`itFr_${docId}`).value,
+        price: Number(document.getElementById(`itPr_${docId}`).value)
+      });
+      alert("تم حفظ التعديل");
+    };
+
+    window.toggleAvail = async (docId, available) => {
+      await updateDoc(doc(db, "items", docId), { available });
+    };
+
+    window.deleteItem = async (docId) => {
+      if (confirm("حذف هذا الصنف نهائياً؟")) {
+        await deleteDoc(doc(db, "items", docId));
+      }
+    };
+
+    window.saveSettings = async () => {
+      await setDoc(doc(db, "settings", "general"), {
+        cafeNameAr: document.getElementById('setCafeAr').value,
+        cafeNameEn: document.getElementById('setCafeEn').value,
+        cafeNameFr: document.getElementById('setCafeFr').value,
+        addressAr: document.getElementById('setAddrAr').value,
+        addressEn: document.getElementById('setAddrEn').value,
+        addressFr: document.getElementById('setAddrFr').value,
+        whatsapp: document.getElementById('setWa').value
+      });
+      alert("تم حفظ إعدادات الكافيه بنجاح!");
+    };
+
+    window.seedDatabase = async () => {
+      if (!confirm("سيتم رفع كل أصناف وأقسام المنيو الافتراضية لقاعدة البيانات، متابعة؟")) return;
+      await setDoc(doc(db, "settings", "general"), initialSettings);
+      for (const c of initialCategories) {
+        await addDoc(collection(db, "categories"), c);
+      }
+      for (const item of initialItems) {
+        await addDoc(collection(db, "items"), { ...item, available: true });
+      }
+      alert("تم تحميل المنيو بالكامل بنجاح!");
+    };
+  </script>
+</body>
+</html>

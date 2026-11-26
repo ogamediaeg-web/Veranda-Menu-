@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VÉRANDA Café | Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b2314;
+      --gold: #e6c68a;
+      --gold-dark: #c59b52;
+      --cream: #f8f1e5;
+      --card-bg: rgba(34, 19, 10, 0.88);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      color: var(--cream);
+      background: #1a0f08 url('bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+    }
+    .overlay {
+      background: linear-gradient(180deg, rgba(22, 12, 6, 0.84) 0%, rgba(28, 15, 8, 0.92) 100%);
+      min-height: 100vh;
+      padding-bottom: 90px;
+    }
+    header {
+      text-align: center;
+      padding: 20px 15px 15px;
+      position: relative;
+    }
+    .lang-bar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .lang-btn {
+      background: rgba(230, 198, 138, 0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 5px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      transition: 0.25s;
+    }
+    .lang-btn.active, .lang-btn:hover {
+      background: var(--gold);
+      color: var(--primary);
+    }
+    .logo-wrap {
+      width: 115px;
+      height: 115px;
+      margin: 0 auto 10px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid var(--gold);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+      background: #3d2213;
+    }
+    .logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    h1 {
+      font-family: 'Playfair Display', 'Cairo', serif;
+      color: var(--gold);
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #dfd0b8;
+      margin-top: 4px;
+    }
+    .search-box {
+      max-width: 550px;
+      margin: 15px auto 0;
+      padding: 0 15px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 25px;
+      border: 1px solid rgba(230, 198, 138, 0.4);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+    .search-box input::placeholder { color: #cbb89d; }
+    .cats-nav {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 14px 15px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(24, 13, 7, 0.95);
+      border-bottom: 1px solid rgba(230, 198, 138, 0.2);
+      scrollbar-width: none;
+    }
+    .cats-nav::-webkit-scrollbar { display: none; }
+    .cat-pill {
+      white-space: nowrap;
+      padding: 7px 16px;
+      border-radius: 20px;
+      background: rgba(230, 198, 138, 0.12);
+      color: var(--cream);
+      border: 1px solid rgba(230, 198, 138, 0.25);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    .cat-pill.active {
+      background: var(--gold);
+      color: var(--primary);
+      font-weight: 800;
+    }
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 15px;
+    }
+    .cat-section {
+      margin-bottom: 28px;
+    }
+    .cat-title {
+      color: var(--gold);
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid rgba(230, 198, 138, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+    }
+    .item-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(230, 198, 138, 0.18);
+      border-radius: 14px;
+      padding: 12px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(6px);
+    }
+    .item-card.unavailable {
+      opacity: 0.5;
+    }
+    .item-info h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .badge-out {
+      display: inline-block;
+      font-size: 11px;
+      background: #b91c1c;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-top: 3px;
+    }
+    .item-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .price {
+      font-weight: 800;
+      color: var(--gold);
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .add-btn {
+      background: var(--gold);
+      color: var(--primary);
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .add-btn:disabled {
+      background: #555;
+      color: #999;
+      cursor: not-allowed;
+    }
+    .cart-bar {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--gold);
+      color: var(--primary);
+      padding: 12px 20px;
+      border-radius: 30px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+      z-index: 100;
+      cursor: pointer;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+    .modal-content {
+      background: #24130a;
+      border: 1px solid var(--gold);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 450px;
+      padding: 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+    }
+    .qty-controls button {
+      background: var(--gold);
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .table-input {
+      width: 100%;
+      padding: 10px;
+      margin: 12px 0;
+      border-radius: 10px;
+      border: 1px solid var(--gold);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+    }
+    .wa-order-btn {
+      width: 100%;
+      padding: 12px;
+      background: #25D366;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+    }
+    footer {
+      text-align: center;
+      padding: 25px 15px 15px;
+      border-top: 1px solid rgba(230, 198, 138, 0.2);
+      margin-top: 30px;
+    }
+    .cafe-address {
+      font-size: 14px;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+    .dev-banner {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(230, 198, 138, 0.35);
+      padding: 12px 24px;
+      border-radius: 16px;
+      gap: 4px;
+    }
+    .dev-name {
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+    .dev-title {
+      font-size: 12px;
+      color: var(--gold);
+    }
+    .dev-wa {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 5px;
+      background: #25D366;
+      color: #fff;
+      text-decoration: none;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <header>
+      <div class="lang-bar">
+        <button class="lang-btn active" onclick="setLang('ar', this)">العربية</button>
+        <button class="lang-btn" onclick="setLang('en', this)">English</button>
+        <button class="lang-btn" onclick="setLang('fr', this)">Français</button>
+      </div>
+      <div class="logo-wrap">
+        <img src="logo.jpg" alt="VÉRANDA Logo">
+      </div>
+      <h1 id="cafeName">VÉRANDA Café</h1>
+      <p class="subtitle">A HEAVEN FIT FOR KINGS</p>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ابحث عن مشروبك المفضل..." oninput="renderMenu()">
+      </div>
+    </header>
+
+    <nav class="cats-nav" id="catsNav"></nav>
+
+    <main class="container" id="menuContainer">
+      <p style="text-align:center; padding:40px;">جاري تحميل المنيو...</p>
+    </main>
+
+    <footer>
+      <p class="cafe-address" id="cafeAddress">📍 سوهاج - شارع الجمهورية - مول تربو - الدور التالت</p>
+      
+      <div class="dev-banner">
+        <span class="dev-name">Manar adrl</span>
+        <span class="dev-title">مهندسة برمجيات</span>
+        <a class="dev-wa" target="_blank" href="https://wa.me/201124349186?text=%D9%85%D8%B3%D8%A7%D8%A1%20%2F%D8%B5%D8%A8%D8%A7%D8%AD%20%D8%A7%D9%84%D8%AE%D9%8A%D8%B1%20%D9%85%D8%AD%D8%AA%D8%A7%D8%AC%2F%D8%A9%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%B1%20%D9%88%D8%A7%D8%B9%D8%B1%D9%81%20%D8%A7%D9%83%D8%AA%D8%B1%20%D8%B9%D9%86%20%D8%A7%D9%84%D9%85%D9%86%D9%8A%D9%88%20%D8%A7%D9%84%D8%A7%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/></svg>
+          <span>01124349186</span>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <div class="cart-bar" id="cartBar" onclick="openCart()">
+    <span id="cartCountText">0 أصناف</span>
+    <span id="cartViewText">عرض الطلب 🛒</span>
+    <span id="cartTotalText">0 EGP</span>
+  </div>
+
+  <div class="modal" id="cartModal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="color:var(--gold);" id="modalTitle">طلبك الحالي</h3>
+        <button onclick="closeCart()" style="background:none; border:none; color:#fff; font-size:22px; cursor:pointer;">✕</button>
+      </div>
+      <div id="cartItemsList"></div>
+      <input type="text" class="table-input" id="tableInput" placeholder="رقم الترابيزة أو الاسم (اختياري)">
+      <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--gold); margin-bottom:12px;">
+        <span id="totalLabel">الإجمالي:</span>
+        <span id="modalTotal">0 EGP</span>
+      </div>
+      <button class="wa-order-btn" onclick="sendWhatsAppOrder()" id="sendWaBtn">إرسال الطلب عبر واتساب</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from './firebase-config.js';
+    import { collection, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    let currentLang = 'ar';
+    let settings = {
+      cafeNameAr: "كافيه فيراندا", cafeNameEn: "VÉRANDA Café", cafeNameFr: "VÉRANDA Café",
+      addressAr: "سوهاج - شارع الجمهورية - مول تربو - الدور التالت",
+      addressEn: "Sohag - El Gomhouria St. - Turbo Mall - 3rd Floor",
+      addressFr: "Sohag - Rue El Gomhouria - Turbo Mall - 3ème étage",
+      whatsapp: "201124349186"
+    };
+    let categories = [];
+    let items = [];
+    let cart = {};
+    let selectedCat = 'all';
+
+    const uiText = {
+      ar: {
+        search: "ابحث عن مشروبك المفضل...", all: "الكل", currency: "ج.م",
+        outOfStock: "غير متاح حالياً", items: "أصناف", viewOrder: "عرض الطلب 🛒",
+        yourOrder: "طلبك الحالي", tablePlaceholder: "رقم الترابيزة أو الاسم",
+        total: "الإجمالي:", sendWa: "إرسال الطلب عبر واتساب"
+      },
+      en: {
+        search: "Search for your favorite drink...", all: "All", currency: "EGP",
+        outOfStock: "Unavailable", items: "items", viewOrder: "View Order 🛒",
+        yourOrder: "Your Order", tablePlaceholder: "Table number or Name",
+        total: "Total:", sendWa: "Send Order via WhatsApp"
+      },
+      fr: {
+        search: "Recherchez votre boisson préférée...", all: "Tout", currency: "EGP",
+        outOfStock: "Indisponible", items: "articles", viewOrder: "Voir la commande 🛒",
+        yourOrder: "Votre Commande", tablePlaceholder: "Numéro de table ou Nom",
+        total: "Total:", sendWa: "Commander sur WhatsApp"
+      }
+    };
+
+    onSnapshot(doc(db, "settings", "general"), (snap) => {
+      if (snap.exists()) {
+        settings = { ...settings, ...snap.data() };
+        updateHeaderFooter();
+      }
+    });
+
+    onSnapshot(query(collection(db, "categories"), orderBy("order")), (snap) => {
+      categories = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      renderCatsNav();
+      renderMenu();
+    });
+
+    onSnapshot(collection(db, "items"), (snap) => {
+      items = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      renderMenu();
+    });
+
+    window.setLang = (lang, btn) => {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      updateHeaderFooter();
+      renderCatsNav();
+      renderMenu();
+      updateCartUI();
+    };
+
+    function updateHeaderFooter() {
+      const t = uiText[currentLang];
+      document.getElementById('searchInput').placeholder = t.search;
+      document.getElementById('cafeName').innerText =
+        currentLang === 'ar' ? settings.cafeNameAr : currentLang === 'en' ? settings.cafeNameEn : settings.cafeNameFr;
+      document.getElementById('cafeAddress').innerText = "📍 " +
+        (currentLang === 'ar' ? settings.addressAr : currentLang === 'en' ? settings.addressEn : settings.addressFr);
+      document.getElementById('modalTitle').innerText = t.yourOrder;
+      document.getElementById('tableInput').placeholder = t.tablePlaceholder;
+      document.getElementById('totalLabel').innerText = t.total;
+      document.getElementById('sendWaBtn').innerText = t.sendWa;
+    }
+
+    function renderCatsNav() {
+      const nav = document.getElementById('catsNav');
+      const t = uiText[currentLang];
+      let html = `<button class="cat-pill ${selectedCat === 'all' ? 'active' : ''}" onclick="selectCat('all')">${t.all}</button>`;
+      categories.forEach(c => {
+        const name = c[currentLang] || c.ar;
+        html += `<button class="cat-pill ${selectedCat === c.id ? 'active' : ''}" onclick="selectCat('${c.id}')">${name}</button>`;
+      });
+      nav.innerHTML = html;
+    }
+
+    window.selectCat = (catId) => {
+      selectedCat = catId;
+      renderCatsNav();
+      renderMenu();
+    };
+
+    window.renderMenu = () => {
+      const container = document.getElementById('menuContainer');
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const t = uiText[currentLang];
+      let html = '';
+
+      const catsToShow = selectedCat === 'all' ? categories : categories.filter(c => c.id === selectedCat);
+
+      catsToShow.forEach(cat => {
+        const catItems = items.filter(it => {
+          if (it.cat !== cat.id) return false;
+          if (!search) return true;
+          return (it.ar && it.ar.toLowerCase().includes(search)) ||
+                 (it.en && it.en.toLowerCase().includes(search)) ||
+                 (it.fr && it.fr.toLowerCase().includes(search));
+        });
+
+        if (catItems.length === 0) return;
+
+        const catName = cat[currentLang] || cat.ar;
+        html += `<section class="cat-section">
+          <h2 class="cat-title">${catName}</h2>
+          <div class="items-grid">`;
+
+        catItems.forEach(it => {
+          const itemName = it[currentLang] || it.ar;
+          const avail = it.available !== false;
+          html += `<div class="item-card ${avail ? '' : 'unavailable'}">
+            <div class="item-info">
+              <h3>${itemName}</h3>
+              ${!avail ? `<span class="badge-out">${t.outOfStock}</span>` : ''}
+            </div>
+            <div class="item-actions">
+              <span class="price">${it.price} ${t.currency}</span>
+              <button class="add-btn" ${!avail ? 'disabled' : ''} onclick="addToCart('${it.docId}')">+</button>
+            </div>
+          </div>`;
+        });
+
+        html += `</div></section>`;
+      });
+
+      container.innerHTML = html || `<p style="text-align:center; padding:30px;">لا توجد نتائج مطابقة</p>`;
+    };
+
+    window.addToCart = (docId) => {
+      cart[docId] = (cart[docId] || 0) + 1;
+      updateCartUI();
+    };
+
+    window.changeQty = (docId, delta) => {
+      cart[docId] = (cart[docId] || 0) + delta;
+      if (cart[docId] <= 0) delete cart[docId];
+      updateCartUI();
+      renderCartModal();
+    };
+
+    function updateCartUI() {
+      const t = uiText[currentLang];
+      let count = 0, total = 0;
+      for (const [id, qty] of Object.entries(cart)) {
+        const item = items.find(i => i.docId === id);
+        if (item) {
+          count += qty;
+          total += item.price * qty;
+        }
+      }
+      const bar = document.getElementById('cartBar');
+      if (count > 0) {
+        bar.style.display = 'flex';
+        document.getElementById('cartCountText').innerText = `${count} ${t.items}`;
+        document.getElementById('cartViewText').innerText = t.viewOrder;
+        document.getElementById('cartTotalText').innerText = `${total} ${t.currency}`;
+      } else {
+        bar.style.display = 'none';
+      }
+    }
+
+    window.openCart = () => {
+      renderCartModal();
+      document.getElementById('cartModal').style.display = 'flex';
+    };
+
+    window.closeCart = () => {
+      document.getElementById('cartModal').style.display = 'none';
+    };
+
+    function renderCartModal() {
+      const list = document.getElementById('cartItemsList');
+      const t = uiText[currentLang];
+      let html = '', total = 0;
+      for (const [id, qty] of Object.entries(cart)) {
+        const item = items.find(i => i.docId === id);
+        if (!item) continue;
+        const sub = item.price * qty;
+        total += sub;
+        html += `<div class="cart-row">
+          <div>
+            <strong>${item[currentLang] || item.ar}</strong><br>
+            <small style="color:var(--gold);">${sub} ${t.currency}</small>
+          </div>
+          <div class="qty-controls">
+            <button onclick="changeQty('${id}', -1)">-</button>
+            <span style="margin:0 8px;">${qty}</span>
+            <button onclick="changeQty('${id}', 1)">+</button>
+          </div>
+        </div>`;
+      }
+      list.innerHTML = html;
+      document.getElementById('modalTotal').innerText = `${total} ${t.currency}`;
+      if (!html) closeCart();
+    }
+
+    window.sendWhatsAppOrder = () => {
+      const table = document.getElementById('tableInput').value.trim();
+      let msg = `طلب جديد من منيو VÉRANDA Café:\n`;
+      if (table) msg += `الترابيزة / الاسم: ${table}\n`;
+      msg += `------------------\n`;
+      let total = 0;
+      for (const [id, qty] of Object.entries(cart)) {
+        const item = items.find(i => i.docId === id);
+        if (!item) continue;
+        total += item.price * qty;
+        msg += `• ${item.ar} × ${qty} = ${item.price * qty} ج.م\n`;
+      }
+      msg += `------------------\nالإجمالي: ${total} ج.م`;
+      let waNum = settings.whatsapp.replace(/\D/g, '');
+      if (waNum.startsWith('0')) waNum = '2' + waNum;
+      window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+  </script>
+</body>
+</html>
